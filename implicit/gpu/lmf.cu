@@ -10,7 +10,7 @@
 
 namespace implicit {
 
-__global__ void bpr_update_kernel(int samples, unsigned int * random_likes, unsigned int * random_dislikes,
+__global__ void lmf_update_kernel(int samples, unsigned int * random_likes, unsigned int * random_dislikes,
                                   int * itemids, int * userids, int * indptr,
                                   int factors,
                                   float * X, float * Y,
@@ -80,6 +80,7 @@ std::pair<int, int>  lmf_update(CudaDenseMatrix * vec_deriv_sum,
         throw std::invalid_argument("userids and itemids should have same number of elements");
     // todo: check indptr = X->rows + 1
 
+    int num_users = X.rows
     int nonzeros = userids.size;
 
     // allocate some memory

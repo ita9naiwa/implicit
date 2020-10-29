@@ -1,4 +1,5 @@
 import cython
+
 from cython cimport floating, integral
 import logging
 import multiprocessing
@@ -20,8 +21,8 @@ import scipy.sparse
 import random
 from libcpp.vector cimport vector
 
-from .recommender_base import MatrixFactorizationBase
-from .utils import check_random_state
+from ..recommender_base import MatrixFactorizationBase
+from ..utils import check_random_state
 
 log = logging.getLogger("implicit")
 
@@ -77,8 +78,6 @@ class LogisticMatrixFactorization(MatrixFactorizationBase):
     neg_prop : int, optional
         The proportion of negative samples. i.e.) "neg_prop = 30" means if user have seen 5 items,
         then 5 * 30 = 150 negative samples are used for training.
-    use_gpu : bool, optional
-        Fit on the GPU if available
     num_threads : int, optional
         The number of threads to use for fitting the model. This only
         applies for the native extensions. Specifying 0 means to default
@@ -95,7 +94,7 @@ class LogisticMatrixFactorization(MatrixFactorizationBase):
         Array of latent factors for each user in the training set
     """
     def __init__(self, factors=30, learning_rate=1.00, regularization=0.6, dtype=np.float32,
-                 iterations=30, neg_prop=30, use_gpu=False, num_threads=0,
+                 iterations=30, neg_prop=30, num_threads=0,
                  random_state=None):
         super(LogisticMatrixFactorization, self).__init__()
 
@@ -104,14 +103,9 @@ class LogisticMatrixFactorization(MatrixFactorizationBase):
         self.iterations = iterations
         self.regularization = regularization
         self.dtype = dtype
-        self.use_gpu = use_gpu
         self.num_threads = num_threads
         self.neg_prop = neg_prop
         self.random_state = random_state
-
-        # TODO: Add GPU training
-        if self.use_gpu:
-            raise NotImplementedError("GPU version of LMF is not implemeneted yet!")
 
     @cython.cdivision(True)
     @cython.boundscheck(False)

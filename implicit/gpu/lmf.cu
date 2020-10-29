@@ -66,13 +66,15 @@ __global__ void bpr_update_kernel(int samples, unsigned int * random_likes, unsi
     }
 }
 
-std::pair<int, int> bpr_update(const CudaVector<int> & userids,
-                               const CudaVector<int> & itemids,
-                               const CudaVector<int> & indptr,
-                               CudaDenseMatrix * X,
-                               CudaDenseMatrix * Y,
-                               float learning_rate, float reg, long seed,
-                               bool verify_negative_samples) {
+std::pair<int, int>  lmf_update(CudaDenseMatrix * vec_deriv_sum,
+                                const CudaVector[int]& indices,
+                                const CudaVector[int]& indptr,
+                                const CudaVector[int]& data,
+                                CudaDenseMatrix *X,
+                                CudaDenseMatrix *Y,
+                                float learning_rate,
+                                float regularization,
+                                long seed) {
     if (X->cols != Y->cols) throw std::invalid_argument("X and Y should have the same number of columns");
     if (userids.size != itemids.size)
         throw std::invalid_argument("userids and itemids should have same number of elements");

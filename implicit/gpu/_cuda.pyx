@@ -40,6 +40,18 @@ cdef extern from "bpr.h" namespace "implicit" nogil:
                                    float learning_rate, float regularization, long seed,
                                    bool verify_negative_samples) except +
 
+cdef extern from "lmf.h" namespace "implicit" nogil:
+    cdef pair[int, int] lmf_update(CudaDenseMatrix * vec_deriv_sum,
+                                   const CudaVector[int]& indices,
+                                   const CudaVector[int]& indptr,
+                                   const CudaVector[int]& data,
+                                   CudaDenseMatrix *X,
+                                   CudaDenseMatrix *Y,
+                                   float learning_rate,
+                                   float regularization,
+                                   long neg_prop,
+                                   long seed) except +
+
 
 cdef class CuDenseMatrix(object):
     cdef CudaDenseMatrix* c_matrix
@@ -72,6 +84,14 @@ cdef class CuIntVector(object):
     def __dealloc__(self):
         del self.c_vector
 
+cdef class CuFloatVector(object):
+    cdef CudaVector[float] * c_vector
+
+    def __cinit__(self, int[:] data):
+        self.c_vector = new CudaVector[float](len(data), &data[0])
+
+    def __dealloc__(self):
+        del self.c_vector
 
 cdef class CuCSRMatrix(object):
     cdef CudaCSRMatrix* c_matrix
@@ -130,3 +150,11 @@ def cu_bpr_update(CuIntVector userids, CuIntVector itemids, CuIntVector indptr,
                      X.c_matrix, Y.c_matrix,
                      learning_rate, regularization, seed, verify_negative)
     return ret.first, ret.second
+
+
+def cu_lmf_update(CuDensematrix vec_deriv_sum, CuDenseMatrix X, CuDenseMatrix Y,
+                  CuIntVector indices, cuIntVector indptr, CuFloatVector data,
+                  float learning_rate, float regularization, long neg_prop, long random_state):
+    ret = lmf_update(vec_deriv_sum.c_matrix, X.c_matrix, Y.c_matrix,
+                     dereference(indices.c_vector), dereference(indptr.c_vector), dereference(data),
+                     learning_rate, regularization, neg_prop, random_state)

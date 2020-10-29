@@ -101,5 +101,38 @@ float dot(const float * a, const float * b) {
     __syncthreads();
     return shared[0];
 }
+
+// TODO: we could use an n-ary search here instead, but
+// that will only be faster when the number of likes for a user is
+// much greater than the number of threads (factors) we are using.
+// Since most users on most datasets have relatively few likes, I'm
+// using a simple linear scan here instead.
+__inline__ __device__
+bool linear_search(int * start, int * end, int target) {
+    __shared__ bool ret;
+
+    if (threadIdx.x == 0) ret = false;
+    __syncthreads();
+
+    int size = end - start;
+    for (int i = threadIdx.x; i < size; i += blockDim.x) {
+        if (start[i] == target) {
+            ret = true;
+        }
+    }
+    __syncthreads();
+    return ret;
+}
+
+#define CHECK_CURAND(code) { checkCurand((code), __FILE__, __LINE__); }
+inline void checkCurand(curandStatus_t code, const char *file, int line) {
+    if (code != CURAND_STATUS_SUCCESS) {
+        std::stringstream err;
+        err << "CURAND error: " << code << " (" << file << ":" << line << ")";
+        throw std::runtime_error(err.str());
+    }
+}
+
+
 }  // namespace implicit
 #endif  // IMPLICIT_GPU_UTILS_CUH_

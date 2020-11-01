@@ -2,6 +2,7 @@
 #define IMPLICIT_GPU_UTILS_CUH_
 #include <stdexcept>
 #include <sstream>
+#include <curand.h>
 
 namespace implicit {
 using std::invalid_argument;

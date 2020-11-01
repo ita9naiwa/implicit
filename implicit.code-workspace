@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "/Users/ita/code/implicit"
+		}
+	],
+	"settings": {
+        "sync-rsync.sites": [
+            {
+                "localPath": "/Users/ita/code/implicit",
+				"shell":"ssh -p 1541",
+				"remotePath": "192.168.1.106:/home/ita/code/implicit",
+
+			}
+        ]
+	}
+}

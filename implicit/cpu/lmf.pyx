@@ -107,6 +107,7 @@ class LogisticMatrixFactorization(MatrixFactorizationBase):
         self.neg_prop = neg_prop
         self.random_state = random_state
 
+
     @cython.cdivision(True)
     @cython.boundscheck(False)
     def fit(self, item_users, show_progress=True):

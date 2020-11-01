@@ -42,11 +42,11 @@ cdef extern from "bpr.h" namespace "implicit" nogil:
 
 cdef extern from "lmf.h" namespace "implicit" nogil:
     cdef pair[int, int] lmf_update(CudaDenseMatrix * vec_deriv_sum,
-                                   const CudaVector[int]& indices,
-                                   const CudaVector[int]& indptr,
-                                   const CudaVector[int]& data,
                                    CudaDenseMatrix *X,
                                    CudaDenseMatrix *Y,
+                                   const CudaVector[int]& indices,
+                                   const CudaVector[int]& indptr,
+                                   const CudaVector[float]& data,
                                    float learning_rate,
                                    float regularization,
                                    long neg_prop,
@@ -87,7 +87,7 @@ cdef class CuIntVector(object):
 cdef class CuFloatVector(object):
     cdef CudaVector[float] * c_vector
 
-    def __cinit__(self, int[:] data):
+    def __cinit__(self, float[:] data):
         self.c_vector = new CudaVector[float](len(data), &data[0])
 
     def __dealloc__(self):
@@ -152,9 +152,24 @@ def cu_bpr_update(CuIntVector userids, CuIntVector itemids, CuIntVector indptr,
     return ret.first, ret.second
 
 
-def cu_lmf_update(CuDensematrix vec_deriv_sum, CuDenseMatrix X, CuDenseMatrix Y,
-                  CuIntVector indices, cuIntVector indptr, CuFloatVector data,
-                  float learning_rate, float regularization, long neg_prop, long random_state):
-    ret = lmf_update(vec_deriv_sum.c_matrix, X.c_matrix, Y.c_matrix,
-                     dereference(indices.c_vector), dereference(indptr.c_vector), dereference(data),
-                     learning_rate, regularization, neg_prop, random_state)
+def cu_lmf_update(CuDenseMatrix vec_deriv_sum,
+                  CuDenseMatrix X,
+                  CuDenseMatrix Y,
+                  CuIntVector indices,
+                  CuIntVector indptr,
+                  CuFloatVector data,
+                  float learning_rate,
+                  float regularization,
+                  long neg_prop,
+                  long random_state):
+    ret = lmf_update(vec_deriv_sum.c_matrix,
+                     X.c_matrix,
+                     Y.c_matrix,
+                     dereference(indices.c_vector),
+                     dereference(indptr.c_vector),
+                     dereference(data.c_vector),
+                     learning_rate,
+                     regularization,
+                     neg_prop,
+                     random_state)
+    return ret.first, ret.second

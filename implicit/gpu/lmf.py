@@ -80,10 +80,6 @@ class LogisticMatrixFactorization(MatrixFactorizationBase):
         self.neg_prop = neg_prop
         self.random_state = random_state
 
-        # TODO: Add GPU training
-        if self.use_gpu:
-            raise NotImplementedError("GPU version of LMF is not implemeneted yet!")
-
     @cython.cdivision(True)
     @cython.boundscheck(False)
     def fit(self, item_users, show_progress=True):

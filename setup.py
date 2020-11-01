@@ -60,13 +60,13 @@ def define_extensions(use_cython=False):
                          language='c++',
                          extra_compile_args=compile_args,
                          extra_link_args=link_args)
-               for name in ['_nearest_neighbours', 'lmf', 'evaluation']]
+               for name in ['_nearest_neighbours', 'evaluation']]
     modules.extend([Extension("implicit.cpu." + name,
                               [os.path.join("implicit", "cpu", name + src_ext)],
                               language='c++',
                               extra_compile_args=compile_args,
                               extra_link_args=link_args)
-                    for name in ['_als', 'bpr']])
+                    for name in ['_als', 'bpr', 'lmf']])
     modules.append(Extension("implicit." + 'recommender_base',
                              [os.path.join("implicit", 'recommender_base' + src_ext),
                               os.path.join("implicit", 'topnc.cpp')],
@@ -79,6 +79,7 @@ def define_extensions(use_cython=False):
                                  [os.path.join("implicit", "gpu", "_cuda" + src_ext),
                                   os.path.join("implicit", "gpu", "als.cu"),
                                   os.path.join("implicit", "gpu", "bpr.cu"),
+                                  os.path.join("implicit", "gpu", "lmf.cu"),
                                   os.path.join("implicit", "gpu", "matrix.cu")],
                                  language="c++",
                                  extra_compile_args=compile_args,

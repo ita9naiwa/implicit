@@ -1,5 +1,3 @@
-import cython
-from cython cimport floating, integral
 import logging
 import multiprocessing
 import time
@@ -7,9 +5,8 @@ import tqdm
 import numpy as np
 import scipy.sparse
 import random
-
-from ..recommender_base import MatrixFactorizationBase
-from .utils import check_random_state
+import implicit.gpu
+from .matrix_factorization_base import MatrixFactorizationBase, check_random_state
 
 log = logging.getLogger("implicit")
 
@@ -69,8 +66,6 @@ class LogisticMatrixFactorization(MatrixFactorizationBase):
         self.neg_prop = neg_prop
         self.random_state = random_state
 
-    @cython.cdivision(True)
-    @cython.boundscheck(False)
     def fit(self, item_users, show_progress=True):
         """ Factorizes the item_users matrix
 

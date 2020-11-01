@@ -4,26 +4,15 @@ import logging
 import multiprocessing
 import time
 import tqdm
-
-from cython.parallel import parallel, prange, threadid
-from libc.math cimport exp
-from libc.math cimport sqrt
-
-from libcpp cimport bool
-from libcpp.algorithm cimport binary_search
-from libc.stdlib cimport malloc, free
-from libc.string cimport memcpy, memset
-
 import numpy as np
 import scipy.sparse
-
 import random
-from libcpp.vector cimport vector
 
 from ..recommender_base import MatrixFactorizationBase
 from .utils import check_random_state
 
 log = logging.getLogger("implicit")
+
 
 class LogisticMatrixFactorization(MatrixFactorizationBase):
     """ Logistic Matrix Factorization

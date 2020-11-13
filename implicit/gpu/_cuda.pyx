@@ -41,7 +41,8 @@ cdef extern from "bpr.h" namespace "implicit" nogil:
                                    bool verify_negative_samples) except +
 
 cdef extern from "lmf.h" namespace "implicit" nogil:
-    cdef pair[int, int] lmf_update(CudaDenseMatrix * vec_deriv_sum,
+    cdef pair[int, int] lmf_update(int * c_indptr,
+                                   CudaDenseMatrix * vec_deriv_sum,
                                    CudaDenseMatrix *X,
                                    CudaDenseMatrix *Y,
                                    const CudaVector[int]& indices,
@@ -152,7 +153,8 @@ def cu_bpr_update(CuIntVector userids, CuIntVector itemids, CuIntVector indptr,
     return ret.first, ret.second
 
 
-def cu_lmf_update(CuDenseMatrix vec_deriv_sum,
+def cu_lmf_update(int[:] c_indptr,
+                  CuDenseMatrix vec_deriv_sum,
                   CuDenseMatrix X,
                   CuDenseMatrix Y,
                   CuIntVector indices,
@@ -162,7 +164,9 @@ def cu_lmf_update(CuDenseMatrix vec_deriv_sum,
                   float regularization,
                   long neg_prop,
                   long random_state):
-    ret = lmf_update(vec_deriv_sum.c_matrix,
+    cdef int* ptr = &c_indptr[0]
+    ret = lmf_update(ptr,
+                     vec_deriv_sum.c_matrix,
                      X.c_matrix,
                      Y.c_matrix,
                      dereference(indices.c_vector),

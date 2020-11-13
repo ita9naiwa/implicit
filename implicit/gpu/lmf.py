@@ -119,29 +119,35 @@ class LogisticMatrixFactorization(MatrixFactorizationBase):
         user_vec_deriv_sum = implicit.gpu.CuDenseMatrix(np.zeros((users, self.factors + 2)).astype(np.float32))
         item_vec_deriv_sum = implicit.gpu.CuDenseMatrix(np.zeros((items, self.factors + 2)).astype(np.float32))
 
-        ui_indices = implicit.gpu.CuIntVector(ser_items.indices)
+        ui_indices = implicit.gpu.CuIntVector(user_items.indices)
         ui_indptr = implicit.gpu.CuIntVector(user_items.indptr)
-        ui_data = implicit.gpu.CuIntVector(user_items.data)
+        ui_data = implicit.gpu.CuFloatVector(user_items.data)
         iu_indices = implicit.gpu.CuIntVector(item_users.indices)
         iu_indptr = implicit.gpu.CuIntVector(item_users.indptr)
-        iu_data = implicit.gpu.CuIntVector(item_users.data)
+        iu_data = implicit.gpu.CuFloatVector(item_users.data)
+
+        X = implicit.gpu.CuDenseMatrix(self.user_factors)
+        Y = implicit.gpu.CuDenseMatrix(self.item_factors)
 
         log.debug("Running %i LMF training epochs", self.iterations)
         with tqdm.tqdm(total=self.iterations, disable=not show_progress) as progress:
             for epoch in range(self.iterations):
                 # user update
-                implicit.gpu.cu_lmf_update(user_vec_deriv_sum,
-                           self.user_factors, self.item_factors,
-                           user_items.indices, user_items.indptr, user_items.data,
-                           self.learning_rate, self.regularization, self.neg_prop, random_state)
+                implicit.gpu.cu_lmf_update(user_items.indptr.data,
+                            user_vec_deriv_sum,
+                           X, Y,
+                           ui_indices, ui_indptr, ui_data,
+                           self.learning_rate, self.regularization, self.neg_prop, 1)
                 # item update
-                implicit.cpu.lmf_update(item_vec_deriv_sum,
-                           self.item_factors, self.user_factors,
-                           item_users.indices, item_users.indptr, item_users.data,
-                           self.learning_rate, self.regularization, self.neg_prop, num_threads, random_state)
+
+                #implicit.gpu.cu_lmf_update(item_vec_deriv_sum,
+                #           Y, X,
+                #           iu_indices, iu_indptr, iu_data,
+                #          self.learning_rate, self.regularization, self.neg_prop, 1)
+
                 progress.update(1)
 
         del user_vec_deriv_sum
         del item_vec_deriv_sum
 
-        self._check_fit_errors()
+        #self._check_fit_errors()

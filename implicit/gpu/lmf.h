@@ -4,7 +4,8 @@
 #include <utility>
 
 namespace implicit {
-std::pair<int, int>  lmf_update(CudaDenseMatrix * vec_deriv_sum,
+std::pair<int, int>  lmf_update(int * c_indptr,
+                                CudaDenseMatrix * vec_deriv_sum,
                                 CudaDenseMatrix *X,
                                 CudaDenseMatrix *Y,
                                 const CudaVector<int>& indices,
